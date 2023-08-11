@@ -1,16 +1,68 @@
 import { FC } from 'react';
+import {
+  faCirclePlus,
+  faCircleMinus,
+  faHandPointer,
+  faUpDownLeftRight,
+  faImage,
+} from '@fortawesome/free-solid-svg-icons';
+import ToolBarButton from './ToolBarButton/ToolBarButton';
 
 interface Props {}
 
 const ToolBar: FC<Props> = () => {
+  const handleClickOnSelectNodes = (): void => {
+    /**
+     * TODO
+     */
+  };
+
+  const handleClickOnMoveSelectedNodes = (): void => {
+    /**
+     * TODO
+     */
+  };
+
+  const handleClickOnAddNode = (): void => {
+    /**
+     * TODO
+     */
+  };
+
+  const handleClickOnRemoveSelectedNodes = (): void => {
+    /**
+     * TODO
+     */
+  };
+  const handleClickOnReplaceImage = (): void => {
+    /**
+     * TODO
+     */
+  };
+
   return (
-    <div className='w-[5%] h-full flex flex-col justify-start items-start bg-slate-800'>
-      <button type='button'>Button 1</button>
-      <button type='button'>Button 2</button>
-      <button type='button'>Button 3</button>
-      <button type='button'>Button 4</button>
-      <button type='button'>Button 5</button>
-    </div>
+    <menu className='w-[5%] max-w-[75px] h-full flex flex-col justify-start items-center bg-slate-600'>
+      <ToolBarButton
+        icon={faHandPointer}
+        onClick={handleClickOnSelectNodes}
+      />
+      <ToolBarButton
+        icon={faUpDownLeftRight}
+        onClick={handleClickOnMoveSelectedNodes}
+      />
+      <ToolBarButton
+        icon={faCirclePlus}
+        onClick={handleClickOnAddNode}
+      />
+      <ToolBarButton
+        icon={faCircleMinus}
+        onClick={handleClickOnRemoveSelectedNodes}
+      />
+      <ToolBarButton
+        icon={faImage}
+        onClick={handleClickOnReplaceImage}
+      />
+    </menu>
   );
 };
 
