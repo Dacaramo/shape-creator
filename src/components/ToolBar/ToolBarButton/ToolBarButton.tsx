@@ -8,7 +8,7 @@ import {
 } from '../../../constants/tailwindColors';
 import { TOOLBAR_ICON_SIZE } from '../../../constants/sizes';
 
-type Appearance = 'unselected' | 'selected' | 'disabled';
+export type Appearance = 'unselected' | 'selected' | 'disabled';
 
 interface Props {
   icon: IconDefinition;
