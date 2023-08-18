@@ -6,8 +6,9 @@ import {
   faUpDownLeftRight,
   faImage,
 } from '@fortawesome/free-solid-svg-icons';
-import ToolBarButton, { Appearance } from './ToolBarButton/ToolBarButton';
 import { useBoundStore } from '../../zustand/store';
+import ToolBarButton, { Appearance } from './ToolBarButton/ToolBarButton';
+import { Tooltip } from 'react-tooltip';
 import { shallow } from 'zustand/shallow';
 
 interface Props {}
@@ -107,24 +108,34 @@ const ToolBar: FC<Props> = () => {
         icon={faHandPointer}
         appearance={nodeSelectionButtonAppearance}
         onClick={handleClickOnSelectNodes}
+        tooltipId='node-selection-button'
+        tooltipText='Select nodes'
       />
       <ToolBarButton
         icon={faUpDownLeftRight}
         appearance={nodeMovementButtonAppearance}
         onClick={handleClickOnMoveSelectedNodes}
+        tooltipId='node-movement-button'
+        tooltipText='Move selected nodes'
       />
       <ToolBarButton
         icon={faCirclePlus}
         appearance={nodeCreationButtonAppearance}
         onClick={handleClickOnAddNode}
+        tooltipId='node-creation-button'
+        tooltipText='Add nodes'
       />
       <ToolBarButton
         icon={faCircleMinus}
         onClick={handleClickOnRemoveSelectedNodes}
+        tooltipId='node-deletion-button'
+        tooltipText='Delete selected nodes'
       />
       <ToolBarButton
         icon={faImage}
         onClick={handleClickOnReplaceImage}
+        tooltipId='image-replacement-button'
+        tooltipText='Replace image'
       />
     </menu>
   );
