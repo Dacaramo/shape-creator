@@ -26,7 +26,10 @@ module.exports = {
     'default-case-last': ['warn'],
     'id-length': [
       'warn',
-      { min: 3, exceptions: ['i', 'j', 'k', 'x', 'y', 'z', '_'] },
+      {
+        min: 3,
+        exceptions: ['i', 'j', 'k', 'x', 'y', 'z', 'e', '_', 'dx', 'dy', 'dz'],
+      },
     ],
     'max-lines': ['warn', { max: 500 }],
     'multiline-comment-style': ['warn', 'starred-block'],

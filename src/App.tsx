@@ -6,8 +6,10 @@ interface Props {}
 
 const App: FC<Props> = () => {
   return (
-    <div className='w-full h-[100vh] flex flex-row justify-start items-center bg-slate-300'>
-      <Canvas />
+    <div className='w-full h-[100vh] flex flex-row justify-start items-center bg-red-300'>
+      <div className='h-full flex grow justify-center items-center bg-slate-100'>
+        <Canvas />
+      </div>
       <ToolBar />
     </div>
   );
