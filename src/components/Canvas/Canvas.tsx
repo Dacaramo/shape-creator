@@ -52,6 +52,7 @@ const Canvas: FC<Props> = () => {
     isNodeDeletionAllowed,
     shapes,
     selectionInfo,
+    setShapes,
     addShape,
     replaceShape,
     deleteShape,
@@ -65,6 +66,7 @@ const Canvas: FC<Props> = () => {
       state.isNodeDeletionAllowed,
       state.shapes,
       state.selectionInfo,
+      state.setShapes,
       state.addShape,
       state.replaceShape,
       state.deleteShape,
@@ -342,17 +344,47 @@ const Canvas: FC<Props> = () => {
 
       if (direction === 'left' || direction === 'top') {
         setDimensions((prev) => {
-          return {
+          const newDimensions = {
             width: prev.width - distance,
             height: prev.height - (distance * prev.height) / prev.width,
           };
+          const scaleFactorX = newDimensions.width / dimensions.width;
+          const scaleFactorY = newDimensions.height / dimensions.height;
+
+          setShapes(
+            shapes.map((poly) => {
+              return poly.map((node) => {
+                return {
+                  x: node.x * scaleFactorX,
+                  y: node.y * scaleFactorY,
+                };
+              });
+            })
+          );
+
+          return newDimensions;
         });
       } else if (direction === 'right' || direction === 'bottom') {
         setDimensions((prev) => {
-          return {
+          const newDimensions = {
             width: prev.width + distance,
             height: prev.height + (distance * prev.height) / prev.width,
           };
+          const scaleFactorX = newDimensions.width / dimensions.width;
+          const scaleFactorY = newDimensions.height / dimensions.height;
+
+          setShapes(
+            shapes.map((poly) => {
+              return poly.map((node) => {
+                return {
+                  x: node.x * scaleFactorX,
+                  y: node.y * scaleFactorY,
+                };
+              });
+            })
+          );
+
+          return newDimensions;
         });
       }
     };

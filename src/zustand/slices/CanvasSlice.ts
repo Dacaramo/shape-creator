@@ -10,6 +10,7 @@ export interface CanvasSlice {
     nodesIndexes: Array<number>;
   };
   replaceImage: (image: HTMLImageElement) => void;
+  setShapes: (shapes: Array<Shape>) => void;
   addShape: (shape: Shape) => void;
   replaceShape: (shape: Shape, index: number) => void;
   deleteShape: (index: number) => void;
@@ -38,6 +39,13 @@ export const createCanvasSlice: StateCreator<
       set(() => {
         return {
           image,
+        };
+      });
+    },
+    setShapes: (shapes: Array<Shape>) => {
+      set(() => {
+        return {
+          shapes,
         };
       });
     },
