@@ -1,4 +1,4 @@
-import { Point } from '../model/Shape';
+import { Point, Polygon } from '../model/Shape';
 
 export type Direction = 'right' | 'bottom' | 'top' | 'left';
 
@@ -74,4 +74,37 @@ export const findTransferredPointOnSegment = (
     y: segmentPoint1.y + dy * t,
   };
   return transferredPoint;
+};
+
+export const isPointInsidePolygon = (
+  point: Point,
+  polygon: Polygon,
+  innerThreshold: number = 0
+): boolean => {
+  const { x, y } = point;
+  let isInside = false;
+
+  // Iterate through each edge of the polygon
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+    const { x: xi, y: yi } = polygon[i];
+    const { x: xj, y: yj } = polygon[j];
+
+    // Calculate the distance between the point and the edge
+    const edgeLength = Math.sqrt((xj - xi) ** 2 + (yj - yi) ** 2);
+    const distanceToEdge =
+      Math.abs((yj - yi) * x - (xj - xi) * y + xj * yi - yj * xi) / edgeLength;
+
+    if (distanceToEdge < innerThreshold) {
+      return false; // Point is too close to an edge, return false
+    }
+
+    // Check if the coordinate is on the same side of the edge
+    const intersectCondition =
+      yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
+    if (intersectCondition) {
+      isInside = !isInside;
+    }
+  }
+
+  return isInside;
 };

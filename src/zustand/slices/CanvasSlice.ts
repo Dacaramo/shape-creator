@@ -5,6 +5,10 @@ import { StoreState } from '../store';
 export interface CanvasSlice {
   image: HTMLImageElement | null;
   shapes: Array<Shape>;
+  selectionInfo: {
+    polygonIndex: number;
+    nodesIndexes: Array<number>;
+  };
   replaceImage: (image: HTMLImageElement) => void;
   addShape: (shape: Shape) => void;
   replaceShape: (shape: Shape, index: number) => void;
@@ -14,6 +18,7 @@ export interface CanvasSlice {
     afterNodeIndex: number,
     triggeredPolygonIndex: number
   ) => void;
+  setSelectionInfo: (polygonIndex: number, nodesIndexes: Array<number>) => void;
 }
 
 export const createCanvasSlice: StateCreator<
@@ -25,6 +30,10 @@ export const createCanvasSlice: StateCreator<
   return {
     image: null,
     shapes: [],
+    selectionInfo: {
+      polygonIndex: -1,
+      nodesIndexes: [],
+    },
     replaceImage: (image: HTMLImageElement) => {
       set(() => {
         return {
@@ -69,6 +78,16 @@ export const createCanvasSlice: StateCreator<
             }
             return poly;
           }),
+        };
+      });
+    },
+    setSelectionInfo: (polygonIndex: number, nodesIndexes: Array<number>) => {
+      set(() => {
+        return {
+          selectionInfo: {
+            polygonIndex,
+            nodesIndexes,
+          },
         };
       });
     },

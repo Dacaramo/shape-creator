@@ -9,6 +9,8 @@ import {
   INITIAL_CANVAS_WIDTH,
   INITIAL_CANVAS_HEIGHT,
   CANVAS_ICON_SIZE,
+  CANVAS_SHAPE_EDGE_THRESHOLD,
+  CANVAS_SHAPE_NODE_RADIUS,
 } from '../../constants/sizes';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMaximize } from '@fortawesome/free-solid-svg-icons';
@@ -17,6 +19,7 @@ import {
   findTransferredPointOnSegment,
   getDirection,
   getPointToSegmentDistance,
+  isPointInsidePolygon,
 } from '../../utils/linearAlgebra';
 import { useBoundStore } from '../../zustand/store';
 import { Point, Polygon } from '../../model/Shape';
@@ -36,6 +39,7 @@ const Canvas: FC<Props> = () => {
   const [currentPolygon, setCurrentPolygon] = useState<Polygon>([]);
   const [currentNode, setCurrentNode] = useState<Point | null>(null);
   const [previewPoint, setPreviewPoint] = useState<Point | null>(null);
+  const [selectedPolygonIndex, setSelectedPolygonIndex] = useState<number>(-1);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const resizingBtnRef = useRef<HTMLButtonElement | null>(null);
@@ -47,10 +51,12 @@ const Canvas: FC<Props> = () => {
     isNodeCreationAllowed,
     isNodeDeletionAllowed,
     shapes,
+    selectionInfo,
     addShape,
     replaceShape,
     deleteShape,
     addNodeAfterGivenNode,
+    setSelectionInfo,
   ] = useBoundStore((state) => {
     return [
       state.isNodeSelectionAllowed,
@@ -58,10 +64,12 @@ const Canvas: FC<Props> = () => {
       state.isNodeCreationAllowed,
       state.isNodeDeletionAllowed,
       state.shapes,
+      state.selectionInfo,
       state.addShape,
       state.replaceShape,
       state.deleteShape,
       state.addNodeAfterGivenNode,
+      state.setSelectionInfo,
     ];
   });
 
@@ -80,12 +88,14 @@ const Canvas: FC<Props> = () => {
 
     ctx.clearRect(0, 0, dimensions.width, dimensions.height);
 
-    shapes.forEach((polygon) => {
+    shapes.forEach((polygon, i) => {
       drawPolygon(
         ctx,
         polygon,
         previewPoint ? previewPoint : undefined,
-        undefined
+        selectionInfo.polygonIndex === i
+          ? selectionInfo.nodesIndexes
+          : undefined
       );
     });
 
@@ -95,7 +105,14 @@ const Canvas: FC<Props> = () => {
         ...(currentNode ? [currentNode] : []),
       ]);
     }
-  }, [currentPolygon, currentNode, shapes, dimensions, previewPoint]);
+  }, [
+    currentPolygon,
+    currentNode,
+    shapes,
+    dimensions,
+    previewPoint,
+    selectionInfo,
+  ]);
 
   const handleMouseDownForResizing = () => {
     setIsResizing(true);
@@ -126,8 +143,51 @@ const Canvas: FC<Props> = () => {
   const handleClickOnCanvas = (
     e: ReactMouseEvent<HTMLCanvasElement, MouseEvent>
   ) => {
-    if (isNodeCreationAllowed) {
-      const thresholdToAddNode = 5;
+    const clickedPoint = {
+      x: e.nativeEvent.offsetX,
+      y: e.nativeEvent.offsetY,
+    };
+
+    if (isNodeSelectionAllowed) {
+      let mustTriggerFullDeselection = true;
+
+      shapes.forEach((poly, i) => {
+        if (
+          isPointInsidePolygon(clickedPoint, poly, CANVAS_SHAPE_EDGE_THRESHOLD)
+        ) {
+          setSelectionInfo(
+            i,
+            poly.map((_, j) => j)
+          );
+          mustTriggerFullDeselection = false;
+        } else {
+          poly.forEach(({ x, y }, j) => {
+            const dx = Math.abs(clickedPoint.x - x);
+            const dy = Math.abs(clickedPoint.y - y);
+            const distance = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+
+            if (distance < CANVAS_SHAPE_NODE_RADIUS) {
+              if (e.ctrlKey) {
+                setSelectionInfo(
+                  i,
+                  i === selectionInfo.polygonIndex
+                    ? [...selectionInfo.nodesIndexes, j]
+                    : [j]
+                );
+              } else {
+                setSelectionInfo(i, [j]);
+              }
+              mustTriggerFullDeselection = false;
+              return;
+            }
+          });
+        }
+      });
+
+      if (mustTriggerFullDeselection) {
+        setSelectionInfo(-1, []);
+      }
+    } else if (isNodeCreationAllowed) {
       /**
        * Need to know if the node to add is for the polygon that is currently
        * being created or if it's for a polygon that was previously created
@@ -138,8 +198,8 @@ const Canvas: FC<Props> = () => {
        * coordinates are the current mouse coordinates relative to the canvas
        */
       let newNode: Point = {
-        x: e.nativeEvent.offsetX,
-        y: e.nativeEvent.offsetY,
+        x: clickedPoint.x,
+        y: clickedPoint.y,
       };
       let afterNodeIndex = -1;
       let triggeredPolygonIndex = -1;
@@ -155,8 +215,8 @@ const Canvas: FC<Props> = () => {
           const p2 = poly[(j + 1) % poly.length];
 
           const distance = getPointToSegmentDistance(
-            e.nativeEvent.offsetX,
-            e.nativeEvent.offsetY,
+            clickedPoint.x,
+            clickedPoint.y,
             p1.x,
             p1.y,
             p2.x,
@@ -164,11 +224,11 @@ const Canvas: FC<Props> = () => {
           );
 
           const transferredPoint = findTransferredPointOnSegment(p1, p2, {
-            x: e.nativeEvent.offsetX,
-            y: e.nativeEvent.offsetY,
+            x: clickedPoint.x,
+            y: clickedPoint.y,
           });
 
-          if (distance <= thresholdToAddNode) {
+          if (distance <= CANVAS_SHAPE_EDGE_THRESHOLD) {
             if (!isCreatingPolygon.current) {
               isForCurrentPolygon = false;
               newNode = transferredPoint;
@@ -184,8 +244,8 @@ const Canvas: FC<Props> = () => {
           return [
             ...prev,
             {
-              x: e.nativeEvent.offsetX,
-              y: e.nativeEvent.offsetY,
+              x: clickedPoint.x,
+              y: clickedPoint.y,
             },
           ];
         });
@@ -199,10 +259,14 @@ const Canvas: FC<Props> = () => {
   const handleMouseMoveOnCanvas = (
     e: ReactMouseEvent<HTMLCanvasElement, MouseEvent>
   ) => {
-    if (isNodeCreationAllowed) {
-      setCurrentNode({ x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY });
+    const clickedPoint = {
+      x: e.nativeEvent.offsetX,
+      y: e.nativeEvent.offsetY,
+    };
 
-      const thresholdToDrawPreviewPoint = 5;
+    if (isNodeCreationAllowed) {
+      setCurrentNode({ x: clickedPoint.x, y: clickedPoint.y });
+
       const canvas = canvasRef.current;
 
       if (!canvas) {
@@ -224,8 +288,8 @@ const Canvas: FC<Props> = () => {
           const p2 = poly[(i + 1) % poly.length];
 
           const distance = getPointToSegmentDistance(
-            e.nativeEvent.offsetX,
-            e.nativeEvent.offsetY,
+            clickedPoint.x,
+            clickedPoint.y,
             p1.x,
             p1.y,
             p2.x,
@@ -233,11 +297,11 @@ const Canvas: FC<Props> = () => {
           );
 
           const transferredPoint = findTransferredPointOnSegment(p1, p2, {
-            x: e.nativeEvent.offsetX,
-            y: e.nativeEvent.offsetY,
+            x: clickedPoint.x,
+            y: clickedPoint.y,
           });
 
-          if (distance <= thresholdToDrawPreviewPoint) {
+          if (distance <= CANVAS_SHAPE_EDGE_THRESHOLD) {
             if (!isCreatingPolygon.current) {
               setPreviewPoint(transferredPoint);
             }
