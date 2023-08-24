@@ -1,4 +1,4 @@
-import { Shape } from '../../model/Shape';
+import { Point, Shape } from '../../model/Shape';
 import { StateCreator } from 'zustand';
 import { StoreState } from '../store';
 
@@ -9,6 +9,11 @@ export interface CanvasSlice {
   addShape: (shape: Shape) => void;
   replaceShape: (shape: Shape, index: number) => void;
   deleteShape: (index: number) => void;
+  addNodeAfterGivenNode: (
+    node: Point,
+    afterNodeIndex: number,
+    triggeredPolygonIndex: number
+  ) => void;
 }
 
 export const createCanvasSlice: StateCreator<
@@ -47,6 +52,23 @@ export const createCanvasSlice: StateCreator<
       set((state) => {
         return {
           shapes: state.shapes.filter((_, i) => i !== index),
+        };
+      });
+    },
+    addNodeAfterGivenNode: (
+      node: Point,
+      afterNodeIndex: number,
+      triggeredPolygonIndex: number
+    ) => {
+      set((state) => {
+        return {
+          shapes: state.shapes.map((poly, i) => {
+            if (i === triggeredPolygonIndex) {
+              poly.splice(afterNodeIndex + 1, 0, node);
+              return poly;
+            }
+            return poly;
+          }),
         };
       });
     },

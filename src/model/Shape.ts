@@ -1,8 +1,8 @@
 export type Shape = Polygon;
 
-export type Polygon = Array<Coordinate>;
+export type Polygon = Array<Point>;
 
-export interface Coordinate {
+export interface Point {
   x: number;
   y: number;
 }
