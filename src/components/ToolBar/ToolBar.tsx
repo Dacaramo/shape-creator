@@ -184,6 +184,7 @@ const ToolBar: FC<Props> = () => {
       <label
         htmlFor='image-input'
         className='mt-3 w-[50%] h-[35px] flex justify-center items-center cursor-pointer'
+        data-tooltip-id='replace-image-button'
       >
         <FontAwesomeIcon
           icon={faImage}
@@ -191,6 +192,16 @@ const ToolBar: FC<Props> = () => {
           color={SLATE_100}
         />
       </label>
+      <Tooltip
+        id='replace-image-button'
+        content='Add or replace background image'
+        place='left'
+        style={{ padding: '2px 5px' }}
+        delayShow={900}
+        noArrow
+        opacity={1}
+        offset={1}
+      />
       <input
         id='image-input'
         hidden
