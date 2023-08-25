@@ -39,11 +39,11 @@ const Canvas: FC<Props> = () => {
   const [currentPolygon, setCurrentPolygon] = useState<Polygon>([]);
   const [currentNode, setCurrentNode] = useState<Point | null>(null);
   const [previewPoint, setPreviewPoint] = useState<Point | null>(null);
-  const [selectedPolygonIndex, setSelectedPolygonIndex] = useState<number>(-1);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const resizingBtnRef = useRef<HTMLButtonElement | null>(null);
   const isCreatingPolygon = useRef<boolean>(false);
+  const nodeBeingMovedIndex = useRef<number>(-1);
 
   const [
     isNodeSelectionAllowed,
@@ -122,24 +122,6 @@ const Canvas: FC<Props> = () => {
 
   const handleMouseUpForResizing = () => {
     setIsResizing(false);
-  };
-
-  const handleMouseDown = () => {
-    /**
-     * TODO
-     */
-  };
-
-  const handleMouseMove = () => {
-    /**
-     * TODO
-     */
-  };
-
-  const handleMouseUp = () => {
-    /**
-     * TODO
-     */
   };
 
   const handleClickOnCanvas = (
@@ -311,6 +293,61 @@ const Canvas: FC<Props> = () => {
           }
         }
       });
+    } else if (isNodeMovementAllowed) {
+      if (nodeBeingMovedIndex.current !== -1) {
+        const averagePosition = { x: 0, y: 0 };
+        for (const index of selectionInfo.nodesIndexes) {
+          averagePosition.x += shapes[selectionInfo.polygonIndex][index].x;
+          averagePosition.y += shapes[selectionInfo.polygonIndex][index].y;
+        }
+        averagePosition.x /= selectionInfo.nodesIndexes.length;
+        averagePosition.y /= selectionInfo.nodesIndexes.length;
+
+        const offsetX = clickedPoint.x - averagePosition.x;
+        const offsetY = clickedPoint.y - averagePosition.y;
+
+        const tempPolygon = [...shapes[selectionInfo.polygonIndex]];
+        for (const index of selectionInfo.nodesIndexes) {
+          tempPolygon[index].x += offsetX;
+          tempPolygon[index].y += offsetY;
+        }
+
+        replaceShape(tempPolygon, selectionInfo.polygonIndex);
+      }
+    }
+  };
+
+  const handleMouseDownOnCanvas = (
+    e: ReactMouseEvent<HTMLCanvasElement, MouseEvent>
+  ) => {
+    const clickedPoint = {
+      x: e.nativeEvent.offsetX,
+      y: e.nativeEvent.offsetY,
+    };
+    if (isNodeMovementAllowed) {
+      shapes.forEach((poly, i) => {
+        poly.forEach(({ x, y }, j) => {
+          const dx = Math.abs(clickedPoint.x - x);
+          const dy = Math.abs(clickedPoint.y - y);
+          const distance = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+
+          if (distance < CANVAS_SHAPE_NODE_RADIUS) {
+            if (
+              i === selectionInfo.polygonIndex &&
+              selectionInfo.nodesIndexes.includes(j)
+            ) {
+              nodeBeingMovedIndex.current = j;
+            }
+            return;
+          }
+        });
+      });
+    }
+  };
+
+  const handleMouseUpOnCanvas = () => {
+    if (isNodeMovementAllowed) {
+      nodeBeingMovedIndex.current = -1;
     }
   };
 
@@ -425,6 +462,8 @@ const Canvas: FC<Props> = () => {
         height={dimensions.height}
         onClick={handleClickOnCanvas}
         onMouseMove={handleMouseMoveOnCanvas}
+        onMouseDown={handleMouseDownOnCanvas}
+        onMouseUp={handleMouseUpOnCanvas}
       />
       <button
         ref={resizingBtnRef}
