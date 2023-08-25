@@ -11,6 +11,7 @@ import {
   CANVAS_ICON_SIZE,
   CANVAS_SHAPE_EDGE_THRESHOLD,
   CANVAS_SHAPE_NODE_RADIUS,
+  CANVAS_RESIZE_BUTTON_OFFSET,
 } from '../../constants/sizes';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMaximize } from '@fortawesome/free-solid-svg-icons';
@@ -377,89 +378,64 @@ const Canvas: FC<Props> = () => {
         return;
       }
 
-      const rect = resizingBtnRef.current.getBoundingClientRect();
-      const btnCenter = {
-        /* eslint-disable */
-        x: rect.left + rect.width / 2,
-        y: rect.top + rect.height / 2,
-        /* eslint-enable */
-      };
-      const finalMousePosition = {
-        x: e.clientX,
-        y: e.clientY,
-      };
-      const dx = finalMousePosition.x - btnCenter.x;
-      const dy = finalMousePosition.y - btnCenter.y;
-      /* eslint-disable */
-      const distance = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
-      /* eslint-enable */
-      const direction = getDirection(dx, dy);
+      const canvas = canvasRef.current;
 
-      if (!direction) {
+      if (!canvas) {
         return;
       }
 
-      if (direction === 'left' || direction === 'top') {
-        setDimensions((prev) => {
-          const newDimensions = {
-            width: prev.width - distance,
-            height: prev.height - (distance * prev.height) / prev.width,
-          };
-          const scaleFactorX = newDimensions.width / dimensions.width;
-          const scaleFactorY = newDimensions.height / dimensions.height;
+      const canvasRect = canvas.getBoundingClientRect();
+      const canvasOrigin: Point = {
+        x: canvasRect.left,
+        y: canvasRect.top,
+      };
 
-          setShapes(
-            shapes.map((poly) => {
-              return poly.map((node) => {
-                return {
-                  x: node.x * scaleFactorX,
-                  y: node.y * scaleFactorY,
-                };
-              });
-            })
-          );
+      const mousePosition = {
+        x: e.clientX,
+        y: e.clientY,
+      };
 
-          if (image) {
-            const img = new Image(newDimensions.width, newDimensions.height);
-            img.id = image.id;
-            img.src = image.src;
+      /**
+       * Distance between the bottom right corner of the canvas and the
+       * mouse position
+       */
+      const distanceX = mousePosition.x - (canvasOrigin.x + dimensions.width);
+      const distanceY = mousePosition.y - (canvasOrigin.y + dimensions.height);
 
-            replaceImage(img);
-          }
+      /**
+       *
+       */
+      const newWidth =
+        dimensions.width + distanceX - CANVAS_RESIZE_BUTTON_OFFSET;
+      const newHeight =
+        dimensions.height + distanceY - CANVAS_RESIZE_BUTTON_OFFSET;
 
-          return newDimensions;
-        });
-      } else if (direction === 'right' || direction === 'bottom') {
-        setDimensions((prev) => {
-          const newDimensions = {
-            width: prev.width + distance,
-            height: prev.height + (distance * prev.height) / prev.width,
-          };
-          const scaleFactorX = newDimensions.width / dimensions.width;
-          const scaleFactorY = newDimensions.height / dimensions.height;
+      const scaleFactorX = newWidth / dimensions.width;
+      const scaleFactorY = newHeight / dimensions.height;
 
-          setShapes(
-            shapes.map((poly) => {
-              return poly.map((node) => {
-                return {
-                  x: node.x * scaleFactorX,
-                  y: node.y * scaleFactorY,
-                };
-              });
-            })
-          );
+      setShapes(
+        shapes.map((poly) => {
+          return poly.map((node) => {
+            return {
+              x: node.x * scaleFactorX,
+              y: node.y * scaleFactorY,
+            };
+          });
+        })
+      );
 
-          if (image) {
-            const img = new Image(newDimensions.width, newDimensions.height);
-            img.id = image.id;
-            img.src = image.src;
+      if (image) {
+        const img = new Image(newWidth, newHeight);
+        img.id = image.id;
+        img.src = image.src;
 
-            replaceImage(img);
-          }
-
-          return newDimensions;
-        });
+        replaceImage(img);
       }
+
+      setDimensions({
+        width: newWidth,
+        height: newHeight,
+      });
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
@@ -504,7 +480,7 @@ const Canvas: FC<Props> = () => {
       <button
         ref={resizingBtnRef}
         type='button'
-        className='absolute -right-[30px] -bottom-[30px] px-[5px] py-[2px] bg-slate-200 cursor-se-resize rounded-full'
+        className={`absolute -right-[${CANVAS_RESIZE_BUTTON_OFFSET}px] -bottom-[${CANVAS_RESIZE_BUTTON_OFFSET}px] px-[5px] py-[2px] bg-slate-200 cursor-se-resize rounded-full`}
         onMouseDown={handleMouseDownForResizing}
       >
         <FontAwesomeIcon
