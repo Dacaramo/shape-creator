@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { ChangeEvent, FC, ChangeEvent as ReactChangeEvent } from 'react';
 import {
   faCirclePlus,
   faCircleMinus,
@@ -10,6 +10,10 @@ import { useBoundStore } from '../../zustand/store';
 import ToolBarButton, { Appearance } from './ToolBarButton/ToolBarButton';
 import { Tooltip } from 'react-tooltip';
 import { shallow } from 'zustand/shallow';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { TOOLBAR_ICON_SIZE } from '../../constants/sizes';
+import { TOOLBAR_ICON_COLOR } from '../../constants/colors';
+import { SLATE_100 } from '../../constants/tailwindColors';
 
 interface Props {}
 
@@ -26,6 +30,7 @@ const ToolBar: FC<Props> = () => {
     setIsNodeDeletionAllowed,
     setSelectionInfo,
     deleteNodes,
+    replaceImage,
   ] = useBoundStore((state) => {
     return [
       state.isNodeSelectionAllowed,
@@ -39,6 +44,7 @@ const ToolBar: FC<Props> = () => {
       state.setIsNodeDeletionAllowed,
       state.setSelectionInfo,
       state.deleteNodes,
+      state.replaceImage,
     ];
   }, shallow);
 
@@ -107,10 +113,24 @@ const ToolBar: FC<Props> = () => {
     setSelectionInfo(-1, []);
   };
 
-  const handleClickOnReplaceImage = (): void => {
-    /**
-     * TODO
-     */
+  const handleClickOnReplaceImage = (
+    e: ReactChangeEvent<HTMLInputElement>
+  ): void => {
+    if (Array.from(e.target.files || []).length === 0) {
+      return;
+    }
+    const file = Array.from(e.target.files || [])[0];
+    const img = new Image();
+    img.id = file.name;
+    img.src = URL.createObjectURL(file);
+    img.onload = () => {
+      const originalHeight = img.height;
+      if (originalHeight > 900) {
+        img.height = 900;
+        img.width = (img.width * img.height) / originalHeight;
+      }
+      replaceImage(img);
+    };
   };
 
   return (
@@ -143,11 +163,23 @@ const ToolBar: FC<Props> = () => {
         tooltipId='node-deletion-button'
         tooltipText='Delete selected nodes'
       />
-      <ToolBarButton
-        icon={faImage}
-        onClick={handleClickOnReplaceImage}
-        tooltipId='image-replacement-button'
-        tooltipText='Replace image'
+      <label
+        htmlFor='image-input'
+        className='mt-3 w-[50%] h-[35px] flex justify-center items-center cursor-pointer'
+      >
+        <FontAwesomeIcon
+          icon={faImage}
+          size={TOOLBAR_ICON_SIZE}
+          color={SLATE_100}
+        />
+      </label>
+      <input
+        id='image-input'
+        hidden
+        className='absolute -z-10'
+        type='file'
+        accept='image/*'
+        onChange={handleClickOnReplaceImage}
       />
     </menu>
   );

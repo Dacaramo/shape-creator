@@ -46,6 +46,7 @@ const Canvas: FC<Props> = () => {
   const nodeBeingMovedIndex = useRef<number>(-1);
 
   const [
+    image,
     isNodeSelectionAllowed,
     isNodeMovementAllowed,
     isNodeCreationAllowed,
@@ -58,8 +59,10 @@ const Canvas: FC<Props> = () => {
     deleteShape,
     addNodeAfterGivenNode,
     setSelectionInfo,
+    replaceImage,
   ] = useBoundStore((state) => {
     return [
+      state.image,
       state.isNodeSelectionAllowed,
       state.isNodeMovementAllowed,
       state.isNodeCreationAllowed,
@@ -72,6 +75,7 @@ const Canvas: FC<Props> = () => {
       state.deleteShape,
       state.addNodeAfterGivenNode,
       state.setSelectionInfo,
+      state.replaceImage,
     ];
   });
 
@@ -89,6 +93,10 @@ const Canvas: FC<Props> = () => {
     }
 
     ctx.clearRect(0, 0, dimensions.width, dimensions.height);
+
+    if (image) {
+      ctx.drawImage(image, 0, 0, image.width, image.height);
+    }
 
     shapes.forEach((polygon, i) => {
       drawPolygon(
@@ -108,6 +116,7 @@ const Canvas: FC<Props> = () => {
       ]);
     }
   }, [
+    image,
     currentPolygon,
     currentNode,
     shapes,
@@ -115,6 +124,17 @@ const Canvas: FC<Props> = () => {
     previewPoint,
     selectionInfo,
   ]);
+
+  useEffect(() => {
+    if (!image) {
+      return;
+    }
+
+    setDimensions({
+      width: image.width,
+      height: image.height,
+    });
+  }, [image]);
 
   const handleMouseDownForResizing = () => {
     setIsResizing(true);
@@ -399,6 +419,14 @@ const Canvas: FC<Props> = () => {
             })
           );
 
+          if (image) {
+            const img = new Image(newDimensions.width, newDimensions.height);
+            img.id = image.id;
+            img.src = image.src;
+
+            replaceImage(img);
+          }
+
           return newDimensions;
         });
       } else if (direction === 'right' || direction === 'bottom') {
@@ -420,6 +448,14 @@ const Canvas: FC<Props> = () => {
               });
             })
           );
+
+          if (image) {
+            const img = new Image(newDimensions.width, newDimensions.height);
+            img.id = image.id;
+            img.src = image.src;
+
+            replaceImage(img);
+          }
 
           return newDimensions;
         });

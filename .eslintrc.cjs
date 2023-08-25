@@ -46,6 +46,7 @@ module.exports = {
           't',
           'u',
           'v',
+          'id',
         ],
       },
     ],
