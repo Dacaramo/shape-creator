@@ -1,4 +1,4 @@
-import { ChangeEvent, FC, ChangeEvent as ReactChangeEvent } from 'react';
+import { FC, ChangeEvent as ReactChangeEvent, useContext } from 'react';
 import {
   faCirclePlus,
   faCircleMinus,
@@ -15,17 +15,19 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { TOOLBAR_ICON_SIZE } from '../../constants/sizes';
 import { TOOLBAR_ICON_COLOR } from '../../constants/colors';
 import { SLATE_100 } from '../../constants/tailwindColors';
+import CanvasContext from '../../contexts/CanvasContext/CanvasContext';
 
 interface Props {}
 
 const ToolBar: FC<Props> = () => {
+  const { canvasRef } = useContext(CanvasContext)!;
+
   const [
     isNodeSelectionAllowed,
     isNodeMovementAllowed,
     isNodeCreationAllowed,
     isNodeDeletionAllowed,
     selectionInfo,
-    canvasRef,
     setIsNodeSelectionAllowed,
     setIsNodeMovementAllowed,
     setIsNodeCreationAllowed,
@@ -40,7 +42,6 @@ const ToolBar: FC<Props> = () => {
       state.isNodeCreationAllowed,
       state.isNodeDeletionAllowed,
       state.selectionInfo,
-      state.canvasRef,
       state.setIsNodeSelectionAllowed,
       state.setIsNodeMovementAllowed,
       state.setIsNodeCreationAllowed,
@@ -137,9 +138,17 @@ const ToolBar: FC<Props> = () => {
   };
 
   const handleClickOnDownloadImage = () => {
-    /**
-     * TODO
-     */
+    const canvas = canvasRef.current;
+
+    if (!canvas) {
+      return;
+    }
+
+    const link = document.createElement('a');
+    link.download = 'myShapeCreatorImage.png';
+    link.href = canvas.toDataURL('image/png');
+
+    link.click();
   };
 
   return (
@@ -195,6 +204,7 @@ const ToolBar: FC<Props> = () => {
         onClick={handleClickOnDownloadImage}
         tooltipId='download-image-button'
         tooltipText='Download image'
+        isLast
       />
     </menu>
   );

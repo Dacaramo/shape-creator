@@ -16,6 +16,7 @@ interface Props {
   appearance?: Appearance;
   tooltipId?: string;
   tooltipText?: string;
+  isLast?: boolean;
   onClick: () => void;
 }
 
@@ -24,6 +25,7 @@ const ToolBarButton: FC<Props> = ({
   appearance = 'unselected',
   tooltipId,
   tooltipText,
+  isLast = false,
   onClick: handleClick,
 }) => {
   let iconColor = SLATE_100;
@@ -36,7 +38,7 @@ const ToolBarButton: FC<Props> = ({
   return (
     <>
       <li
-        className='mt-3 w-[50%]'
+        className={`mt-${isLast ? 'auto' : '3'} ${isLast && 'mb-3'} w-[50%]`}
         data-tooltip-id={tooltipId ? tooltipId : undefined}
       >
         <button
