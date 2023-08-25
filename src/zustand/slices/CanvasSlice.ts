@@ -1,6 +1,7 @@
 import { Point, Shape } from '../../model/Shape';
 import { StateCreator } from 'zustand';
 import { StoreState } from '../store';
+import { useRef, MutableRefObject } from 'react';
 
 export interface CanvasSlice {
   image: HTMLImageElement | null;

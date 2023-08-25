@@ -1,5 +1,6 @@
 import {
   FC,
+  useContext,
   useState,
   useRef,
   useEffect,
@@ -25,6 +26,7 @@ import {
 import { useBoundStore } from '../../zustand/store';
 import { Point, Polygon } from '../../model/Shape';
 import { drawPolygon } from '../../utils/canvas';
+import CanvasContext from '../../contexts/CanvasContext/CanvasContext';
 
 interface Props {}
 
@@ -41,10 +43,11 @@ const Canvas: FC<Props> = () => {
   const [currentNode, setCurrentNode] = useState<Point | null>(null);
   const [previewPoint, setPreviewPoint] = useState<Point | null>(null);
 
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const resizingBtnRef = useRef<HTMLButtonElement | null>(null);
   const isCreatingPolygon = useRef<boolean>(false);
   const nodeBeingMovedIndex = useRef<number>(-1);
+
+  const { canvasRef } = useContext(CanvasContext)!;
 
   const [
     image,

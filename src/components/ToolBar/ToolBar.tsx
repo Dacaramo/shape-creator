@@ -5,6 +5,7 @@ import {
   faHandPointer,
   faUpDownLeftRight,
   faImage,
+  faFileArrowDown,
 } from '@fortawesome/free-solid-svg-icons';
 import { useBoundStore } from '../../zustand/store';
 import ToolBarButton, { Appearance } from './ToolBarButton/ToolBarButton';
@@ -24,6 +25,7 @@ const ToolBar: FC<Props> = () => {
     isNodeCreationAllowed,
     isNodeDeletionAllowed,
     selectionInfo,
+    canvasRef,
     setIsNodeSelectionAllowed,
     setIsNodeMovementAllowed,
     setIsNodeCreationAllowed,
@@ -38,6 +40,7 @@ const ToolBar: FC<Props> = () => {
       state.isNodeCreationAllowed,
       state.isNodeDeletionAllowed,
       state.selectionInfo,
+      state.canvasRef,
       state.setIsNodeSelectionAllowed,
       state.setIsNodeMovementAllowed,
       state.setIsNodeCreationAllowed,
@@ -133,6 +136,12 @@ const ToolBar: FC<Props> = () => {
     };
   };
 
+  const handleClickOnDownloadImage = () => {
+    /**
+     * TODO
+     */
+  };
+
   return (
     <menu className='w-[5%] max-w-[75px] h-full flex flex-col justify-start items-center bg-slate-600'>
       <ToolBarButton
@@ -180,6 +189,12 @@ const ToolBar: FC<Props> = () => {
         type='file'
         accept='image/*'
         onChange={handleClickOnReplaceImage}
+      />
+      <ToolBarButton
+        icon={faFileArrowDown}
+        onClick={handleClickOnDownloadImage}
+        tooltipId='download-image-button'
+        tooltipText='Download image'
       />
     </menu>
   );
