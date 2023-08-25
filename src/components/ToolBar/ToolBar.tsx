@@ -23,6 +23,7 @@ const ToolBar: FC<Props> = () => {
     setIsNodeMovementAllowed,
     setIsNodeCreationAllowed,
     setIsNodeDeletionAllowed,
+    setSelectionInfo,
   ] = useBoundStore((state) => {
     return [
       state.isNodeSelectionAllowed,
@@ -33,6 +34,7 @@ const ToolBar: FC<Props> = () => {
       state.setIsNodeMovementAllowed,
       state.setIsNodeCreationAllowed,
       state.setIsNodeDeletionAllowed,
+      state.setSelectionInfo,
     ];
   }, shallow);
 
@@ -88,6 +90,8 @@ const ToolBar: FC<Props> = () => {
       setIsNodeSelectionAllowed(false);
       setIsNodeMovementAllowed(false);
     }
+
+    setSelectionInfo(-1, []);
   };
 
   const handleClickOnRemoveSelectedNodes = (): void => {
