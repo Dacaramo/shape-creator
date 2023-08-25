@@ -19,22 +19,26 @@ const ToolBar: FC<Props> = () => {
     isNodeMovementAllowed,
     isNodeCreationAllowed,
     isNodeDeletionAllowed,
+    selectionInfo,
     setIsNodeSelectionAllowed,
     setIsNodeMovementAllowed,
     setIsNodeCreationAllowed,
     setIsNodeDeletionAllowed,
     setSelectionInfo,
+    deleteNodes,
   ] = useBoundStore((state) => {
     return [
       state.isNodeSelectionAllowed,
       state.isNodeMovementAllowed,
       state.isNodeCreationAllowed,
       state.isNodeDeletionAllowed,
+      state.selectionInfo,
       state.setIsNodeSelectionAllowed,
       state.setIsNodeMovementAllowed,
       state.setIsNodeCreationAllowed,
       state.setIsNodeDeletionAllowed,
       state.setSelectionInfo,
+      state.deleteNodes,
     ];
   }, shallow);
 
@@ -45,6 +49,7 @@ const ToolBar: FC<Props> = () => {
   let nodeSelectionButtonAppearance: Appearance = 'unselected';
   let nodeMovementButtonAppearance: Appearance = 'unselected';
   let nodeCreationButtonAppearance: Appearance = 'unselected';
+  let nodeDeletionButtonAppearance: Appearance = 'unselected';
 
   if (isNodeSelectionAllowed) {
     nodeSelectionButtonAppearance = 'selected';
@@ -57,6 +62,10 @@ const ToolBar: FC<Props> = () => {
   if (shapes.length === 0) {
     nodeSelectionButtonAppearance = 'disabled';
     nodeMovementButtonAppearance = 'disabled';
+  }
+
+  if (selectionInfo.nodesIndexes.length === 0) {
+    nodeDeletionButtonAppearance = 'disabled';
   }
 
   const handleClickOnSelectNodes = (): void => {
@@ -90,14 +99,12 @@ const ToolBar: FC<Props> = () => {
       setIsNodeSelectionAllowed(false);
       setIsNodeMovementAllowed(false);
     }
-
     setSelectionInfo(-1, []);
   };
 
   const handleClickOnRemoveSelectedNodes = (): void => {
-    /**
-     * TODO
-     */
+    deleteNodes(selectionInfo.polygonIndex, selectionInfo.nodesIndexes);
+    setSelectionInfo(-1, []);
   };
 
   const handleClickOnReplaceImage = (): void => {
@@ -131,6 +138,7 @@ const ToolBar: FC<Props> = () => {
       />
       <ToolBarButton
         icon={faCircleMinus}
+        appearance={nodeDeletionButtonAppearance}
         onClick={handleClickOnRemoveSelectedNodes}
         tooltipId='node-deletion-button'
         tooltipText='Delete selected nodes'

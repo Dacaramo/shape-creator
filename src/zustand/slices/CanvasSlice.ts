@@ -20,6 +20,7 @@ export interface CanvasSlice {
     triggeredPolygonIndex: number
   ) => void;
   setSelectionInfo: (polygonIndex: number, nodesIndexes: Array<number>) => void;
+  deleteNodes: (polygonIndex: number, nodesIndexes: Array<number>) => void;
 }
 
 export const createCanvasSlice: StateCreator<
@@ -96,6 +97,28 @@ export const createCanvasSlice: StateCreator<
             polygonIndex,
             nodesIndexes,
           },
+        };
+      });
+    },
+    deleteNodes: (polygonIndex: number, nodesIndexes: Array<number>) => {
+      set((state) => {
+        let newShapes = state.shapes.map((poly, i) => {
+          if (i === polygonIndex) {
+            return poly.filter((_, j) => !nodesIndexes.includes(j));
+          }
+          return poly;
+        });
+
+        /**
+         * Can't have empty polygons. If all nodes are deleted the polygon must
+         * be removed from the list
+         */
+        if (state.shapes[polygonIndex].length === nodesIndexes.length) {
+          newShapes = newShapes.filter((_, i) => i !== polygonIndex);
+        }
+
+        return {
+          shapes: newShapes,
         };
       });
     },
