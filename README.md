@@ -1,27 +1,26 @@
-# React + TypeScript + Vite
+# Shape Creator
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+An app that tests all of my linear algebra, geometry and state management skills on web applications.
 
-Currently, two official plugins are available:
+## How to use
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+The interface is really intuitive, just keep in mind the following 2 observations:
 
-## Expanding the ESLint configuration
+- Hit the enter key in order to complete the polygon you are creating.
+- Hold the ctrl key while clicking in order to select multiple nodes.
+- In order to move nodes successfully you need to move a node is select.
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## Backlog
 
-- Configure the top-level `parserOptions` property like this:
+> This section contains all of the future functionalities that want to be added to the project
 
-```js
-   parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-   },
-```
-
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+- Allow the creation and manipulation of the following shapes:
+  - Circle
+  - Ellipse
+  - Rectangle
+  - Bezier shapes
+- Allow undo and redo actions
+- Allow canvas resizing while preserving aspect ratio
+- Allow to change the stroke color of any shape
+- Implement shortcuts for every action inside the app
+- Display a shortcut manual explaining
