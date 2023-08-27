@@ -192,6 +192,14 @@ const ToolBar: FC<Props> = () => {
           color={SLATE_100}
         />
       </label>
+      <input
+        id='image-input'
+        hidden
+        className='absolute -z-10'
+        type='file'
+        accept='image/*'
+        onChange={handleClickOnReplaceImage}
+      />
       <Tooltip
         id='replace-image-button'
         content='Add or replace background image'
@@ -201,14 +209,6 @@ const ToolBar: FC<Props> = () => {
         noArrow
         opacity={1}
         offset={1}
-      />
-      <input
-        id='image-input'
-        hidden
-        className='absolute -z-10'
-        type='file'
-        accept='image/*'
-        onChange={handleClickOnReplaceImage}
       />
       <ToolBarButton
         icon={faFileArrowDown}

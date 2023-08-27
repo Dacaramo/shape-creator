@@ -38,7 +38,7 @@ const ToolBarButton: FC<Props> = ({
   return (
     <>
       <li
-        className={`mt-${isLast ? 'auto' : '3'} ${isLast && 'mb-3'} w-[50%]`}
+        className={`${isLast ? 'mt-auto' : 'mt-3'} ${isLast && 'mb-3'} w-[50%]`}
         data-tooltip-id={tooltipId ? tooltipId : undefined}
       >
         <button

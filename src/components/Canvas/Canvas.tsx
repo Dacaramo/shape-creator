@@ -483,7 +483,11 @@ const Canvas: FC<Props> = () => {
       <button
         ref={resizingBtnRef}
         type='button'
-        className={`absolute -right-[${CANVAS_RESIZE_BUTTON_OFFSET}px] -bottom-[${CANVAS_RESIZE_BUTTON_OFFSET}px] px-[5px] py-[2px] bg-slate-200 cursor-se-resize rounded-full`}
+        style={{
+          right: -CANVAS_RESIZE_BUTTON_OFFSET,
+          bottom: -CANVAS_RESIZE_BUTTON_OFFSET,
+        }}
+        className={`absolute px-[5px] py-[2px] bg-slate-200 cursor-se-resize rounded-full`}
         onMouseDown={handleMouseDownForResizing}
       >
         <FontAwesomeIcon
